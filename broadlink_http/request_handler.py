@@ -15,20 +15,23 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(500, message = traceback.format_exc())
 
     def handle_request(self):
+        logger = self.server.logger
         (command, args) = self.parse_path_and_args(self.path)
-        print "Received request: %s with args %s" % (command, args)
+        logger.info("Received request: %s with args %s" % (command, args))
         if command == "generate_device":
-            device.generate_device(self.server.config['directory'])
+            device.generate_device(self.server.config['directory'],
+                                   logger,
+                                   self.server.config['ip'])
         elif command == "learn_command":
-            device.learn_command(self.server.config['directory'], args)
+            device.learn_command(self.server.config['directory'], args, logger)
         elif command == "send_commands":
-            device.send_commands(self.server.config['directory'], args)
+            device.send_commands(self.server.config['directory'], args, logger)
         else:
-            print "unknown command: %s" % command
+            logger.info("unknown command: %s" % command)
             self.send_response(404)
             return
 
-        print "command successful: %s" % command
+        logger.info("command successful: %s" % command)
         self.send_response(201)
 
     def parse_path_and_args(self, argstring):

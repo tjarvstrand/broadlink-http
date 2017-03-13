@@ -5,8 +5,11 @@ setup(name='broadlink-http',
       packages=find_packages(),
       entry_points={
           'console_scripts': ['broadlink-http=broadlink_http.broadlink_http:main',
+                              'broadlink-httpd=broadlink_http.broadlink_httpd:main',
                               'broadlink=broadlink_http.broadlink_cmd:main']
       },
-      install_requires = ['broadlink'],
+      install_requires = ['broadlink',
+                          'python-daemon'],
       include_package_data=True
 )
+
