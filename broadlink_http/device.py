@@ -47,7 +47,7 @@ def generate_device(directory, logger, local_ip = None):
 def send_commands(directory, args, logger):
     args['commands'] = args['commands'] * (args['iterations'])
 
-    device = get_device(directory)
+    device = get_device(directory, logger)
     while len(args['commands']) > 0:
         _send_command(device, directory, args, logger)
         args['commands'] = args['commands'][1:]
@@ -67,22 +67,28 @@ def _send_command(device, directory, args, logger):
             time.sleep(args['command_repeat_interval'])
             device.send_data(base64.b64decode(command))
 
-def learn_command(directory, command, timeout, logger):
-    command_filename = get_command_filename(directory, command)
+def learn_command(directory, args, logger):
+    command_filename = get_command_filename(directory, args['command'])
     command_directory = os.path.dirname(command_filename)
     if not os.path.isdir(command_directory):
         os.makedirs(command_directory)
 
-    device = get_device(directory)
+    device = get_device(directory, logger)
     device.enter_learning()
     start_time = time.time()
     data = None
     while data is None:
-        if time.time() - start_time > timeout:
+        if time.time() - start_time > args['timeout']:
             raise TimeoutException
         time.sleep(1)
         data = device.check_data()
 
     with open(command_filename, 'w+b') as f:
         f.write(base64.b64encode(data))
+
+def list_commands(directory, args, logger):
+    command_directory = os.path.join(directory, 'commands')
+    if not os.path.isdir(command_directory):
+        return []
+    return os.listdir(command_directory)
 

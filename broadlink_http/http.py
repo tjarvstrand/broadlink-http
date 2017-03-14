@@ -8,7 +8,7 @@ from server import Server
 from request_handler import RequestHandler
 
 def serve(config):
-    address = (config['ip'], config['port'])
+    address = (config.get('ip', ''), config['port'])
     logger = log.get_logger()
     log.add_file_handler(config['log_file'])
     logger.info('Starting httpd...')

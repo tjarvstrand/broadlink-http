@@ -30,7 +30,6 @@ def get_default_config(path):
     if directory and not isdir(directory):
         os.makedirs(directory)
     config = {'directory': directory,
-              'ip': '',
               'port': 8080,
               'log_file': 'broadlink-http.log',
               'pid_file': 'broadlink-http.pid'}

@@ -1,43 +1,66 @@
 from BaseHTTPServer import BaseHTTPRequestHandler
+import json
 import traceback
 
 import device
-from exception import TimeoutException
+from exception import NotFoundException, TimeoutException
 
 class RequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         try:
-            self.handle_request()
+            self.handle_post()
+        except NotFoundException, e:
+            self.send_response(404)
         except TimeoutException, e:
             self.send_response(504)
         except Exception, e:
             self.send_response(500, message = traceback.format_exc())
 
-    def handle_request(self):
+    def handle_post(self):
         logger = self.server.logger
-        (command, args) = self.parse_path_and_args(self.path)
-        logger.info("Received request: %s with args %s" % (command, args))
+        (command, args) = self.parse_path_and_args()
+        logger.info("Received POST request: %s with args %s" % (command, args))
         if command == "generate_device":
             device.generate_device(self.server.config['directory'],
                                    logger,
-                                   self.server.config['ip'])
+                                   self.server.config.get('ip', None))
         elif command == "learn_command":
             device.learn_command(self.server.config['directory'], args, logger)
         elif command == "send_commands":
             device.send_commands(self.server.config['directory'], args, logger)
         else:
             logger.info("unknown command: %s" % command)
+            raise NotFoundException()
+
+    def do_GET(self):
+        try:
+            body = self.handle_get()
+            self.send_response(200, message = json.dumps(body))
+        except NotFoundException, e:
             self.send_response(404)
-            return
+        except TimeoutException, e:
+            self.send_response(504)
+        except Exception, e:
+            self.send_response(500, message = traceback.format_exc())
 
-        logger.info("command successful: %s" % command)
-        self.send_response(201)
+    def handle_get(self):
+        logger = self.server.logger
+        (command, args) = self.parse_path_and_args()
+        logger.info("Received GET request: %s with args %s" % (command, args))
+        if command == "list_commands":
+            commands = device.list_commands(self.server.config['directory'], args, logger)
+            logger.info("command successful: %s" % command)
+            return commands
+        else:
+            logger.info("unknown command: %s" % command)
+            raise NotFoundException()
 
-    def parse_path_and_args(self, argstring):
+
+    def parse_path_and_args(self):
         s = self.path.split('?')
         if len(s) > 1:
-            args = dict([arg.split('=') for arg in s[1].split('&')])
+            args = dict([arg.split('=') for arg in s[-1].split('&')])
         else:
             args = {}
         args['commands'] = args.get('commands', '').split(',')
