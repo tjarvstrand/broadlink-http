@@ -5,6 +5,7 @@
 
 #standard python libs
 import os
+import os.path
 import time
 import sys
 
@@ -20,7 +21,7 @@ class BroadlinkHttpd():
         self.stdin_path = '/dev/pts/37'
         self.stdout_path = '/dev/pts/37'
         self.stderr_path = '/dev/pts/37'
-        self.pidfile_path =  os.getcwd() + "/broadlink.pid"
+        self.pidfile_path =  self.config['pid_file']
         self.pidfile_timeout = 5
 
     def run(self):

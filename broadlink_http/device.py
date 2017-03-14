@@ -11,7 +11,7 @@ def get_device_filename(directory):
     return os.path.join(directory, "device.json")
 
 def get_command_filename(directory, command):
-    return os.path.join(directory, "commands", command + ".json")
+    return os.path.join(directory, "commands", command)
 
 def get_device(directory, logger):
     device_filename = get_device_filename(directory)
