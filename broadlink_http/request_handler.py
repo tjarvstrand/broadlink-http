@@ -10,6 +10,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             self.handle_post()
+            self.send_response(200)
         except NotFoundException, e:
             self.send_response(404)
         except TimeoutException, e:
