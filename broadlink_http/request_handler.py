@@ -19,19 +19,17 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(500, message = traceback.format_exc())
 
     def handle_post(self):
-        logger = self.server.logger
         (command, args) = self.parse_path_and_args()
-        logger.info("Received POST request: %s with args %s" % (command, args))
+        print "Received POST request: %s with args %s" % (command, args)
         if command == "generate_device":
             device.generate_device(self.server.config['directory'],
-                                   logger,
                                    self.server.config.get('ip', None))
         elif command == "learn_command":
-            device.learn_command(self.server.config['directory'], args, logger)
+            device.learn_command(self.server.config['directory'], args)
         elif command == "send_commands":
-            device.send_commands(self.server.config['directory'], args, logger)
+            device.send_commands(self.server.config['directory'], args)
         else:
-            logger.info("unknown command: %s" % command)
+            print "unknown command: %s" % command
             raise NotFoundException()
 
     def do_GET(self):
@@ -46,15 +44,14 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_response(500, message = traceback.format_exc())
 
     def handle_get(self):
-        logger = self.server.logger
         (command, args) = self.parse_path_and_args()
-        logger.info("Received GET request: %s with args %s" % (command, args))
+        print "Received GET request: %s with args %s" % (command, args)
         if command == "list_commands":
-            commands = device.list_commands(self.server.config['directory'], args, logger)
-            logger.info("command successful: %s" % command)
+            commands = device.list_commands(self.server.config['directory'], args)
+            print "Command successful: %s" % command
             return commands
         else:
-            logger.info("unknown command: %s" % command)
+            print "Unknown command: %s" % command
             raise NotFoundException()
 
 

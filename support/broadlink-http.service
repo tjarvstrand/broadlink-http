@@ -1,0 +1,11 @@
+[Unit]
+Description=Broadlink HTTP
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python -u /usr/local/bin/broadlink-http
+User=broadlink
+WorkingDirectory=/home/broadlink
+
+[Install]
+WantedBy=multi-user.target
